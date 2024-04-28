@@ -2,9 +2,7 @@
 
 I used my four UFO 313 for a couple of years, but now, even the Astra 28.2° East  shut down most of its Radio transmissions on QPSK Modulation (aka DVB-S)
 
-Since Kathrein is not providing an update for these modules, I try to convert them to a internet-radio modulator, since the used technology is
-
-(as always) superb quality.
+Since Kathrein is not providing an update for these modules, I try to convert them to a internet-radio modulator, since the used technology is (as always) superb quality.
 
 Other than the block diagram in the brochure I found the following after opening:
 
