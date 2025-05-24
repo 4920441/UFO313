@@ -18,3 +18,107 @@ So we could get a Internetradio to High Quality Cable Headend Conversion and use
 
 
 If someone has some e-waste since that incident, too, leave me a note.  I think that does not have to be!
+
+
+
+
+
+Identifying and extracting I²S (Inter-IC Sound) data from a closed-source DVB-S to FM modulator involves several technical steps. Here's a structured approach:
+
+1. Locating the I²S Bus on the PCB
+I²S is a serial bus for digital audio, with three main signals (sometimes four):
+
+SCK (Serial Clock) – Synchronizes data transmission.
+
+WS (Word Select) – Indicates left/right channel (typically 48 kHz or similar).
+
+SD (Serial Data) – Actual audio data (16/24/32-bit samples).
+
+(Optional) MCLK (Master Clock) – Often 256× or 512× the sample rate (e.g., 12.288 MHz for 48 kHz).
+
+How to Find I²S Traces:
+Follow the DVB Demodulator Chip:
+
+Look for the DVB-S demodulator IC (e.g., STV090x, Montage, etc.). Check its datasheet for I²S pins.
+
+Trace the pins labeled I2S_OUT, SDATA, BCLK, or similar.
+
+Check Nearby Audio DACs or FM Modulators:
+
+The I²S bus likely connects to an audio DAC or directly to FM modulator ICs (e.g., TEA5767, SAF7741, or RDA5807M).
+
+Physical PCB Inspection:
+
+I²S traces are usually short and run parallel (to avoid clock skew).
+
+Use a multimeter in continuity mode to verify connections between chips.
+
+2. Confirming the I²S Bus
+Oscilloscope or Logic Analyzer:
+
+Probe suspected pins to verify I²S signals:
+
+SCK will pulse at MHz frequencies (e.g., 2-4 MHz for 48 kHz audio).
+
+WS will toggle at the audio sample rate (e.g., 48 kHz).
+
+SD will show random-looking data synchronized to SCK/WS.
+
+Example tools: Saleae Logic Analyzer, Digilent Analog Discovery, or a cheap CY7C68013A-based logic sniffer.
+
+3. Extracting I²S Data
+Once you've identified the bus, you can capture and decode the data:
+
+Option A: Logic Analyzer + Software Decoding
+Capture: Use a logic analyzer to record SCK, WS, and SD.
+
+Decode:
+
+Use PulseView (with I²S decoder) or Saleae Logic (with custom script).
+
+Configure bit depth (e.g., 16/24-bit), endianness, and WS polarity (left/right channel).
+
+Option B: Microcontroller Interception
+Use an MCU (e.g., STM32, ESP32) to read I²S directly:
+
+Configure the MCU as an I²S slave.
+
+Store data to an SD card or stream via USB/UART.
+
+Example: ESP32’s I2S library can capture and forward audio.
+
+Option C: FPGA Sniffing (Advanced)
+For high-speed or multiplexed I²S, an FPGA (e.g., Xilinx Spartan) can capture and buffer data.
+
+4. Processing the Extracted Data
+Raw I²S data is just PCM audio (e.g., 16-bit signed, little-endian).
+
+Convert to WAV using sox or Python:
+
+python
+import numpy as np
+raw_data = np.fromfile("i2s_raw.bin", dtype=np.int16)  # Adjust for bit depth
+raw_data.tofile("audio.wav")  # Add WAV header manually or use scipy.io.wavfile
+5. Challenges & Considerations
+Closed-Source Hardware: No schematics mean manual tracing.
+
+Multiple FM Modulators: If the I²S bus is shared, it might be time-multiplexed or use TDM (Time-Division Multiplexing). Adjust decoding accordingly.
+
+Clock Synchronization: Ensure your capture device syncs correctly to SCK/WS.
+
+Legal/Ethical: Reverse-engineering may violate warranties or licenses. Proceed carefully.
+
+Tools You’ll Need
+Hardware:
+
+Oscilloscope / Logic Analyzer
+
+Multimeter (for continuity checks)
+
+MCU/FPGA (optional for interception)
+
+Software:
+
+PulseView, Saleae Logic, or Sigrok
+
+Python (for post-processing)
